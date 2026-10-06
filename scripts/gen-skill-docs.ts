@@ -761,8 +761,8 @@ function processExternalHost(
   let symlinkLoop = false;
   const claudePath = ctx.tmplPath.replace(/\.tmpl$/, '');
   try {
-    const resolvedClaude = fs.realpathSync(claudePath);
-    const resolvedExternal = path.join(fs.realpathSync(path.dirname(outputPath)), path.basename(outputPath));
+    const resolvedClaude = fs.realpathSync.native(claudePath);
+    const resolvedExternal = path.join(fs.realpathSync.native(path.dirname(outputPath)), path.basename(outputPath));
     if (resolvedClaude === resolvedExternal) {
       symlinkLoop = true;
     }
@@ -776,10 +776,10 @@ function processExternalHost(
   // Transform frontmatter (host-aware)
   let result = transformFrontmatter(content, host);
 
-  // Insert safety advisory at the top of the body (after frontmatter)
-  if (safetyProse) {
+  const bodyPrefix = [hostConfig.generation.bodyPrefix, safetyProse].filter(Boolean).join('\n\n');
+  if (bodyPrefix) {
     const bodyStart = result.indexOf('\n---') + 4;
-    result = result.slice(0, bodyStart) + '\n' + safetyProse + '\n' + result.slice(bodyStart);
+    result = result.slice(0, bodyStart) + '\n' + bodyPrefix + '\n' + result.slice(bodyStart);
   }
 
   // Config-driven path + tool rewrites (shared with processSectionTemplate so
